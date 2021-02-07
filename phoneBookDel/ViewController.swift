@@ -22,14 +22,27 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         
+    
+        self.navigationItem.title = "電話帳削除アプリ"
+        tableView.allowsMultipleSelectionDuringEditing = true
+        navigationItem.rightBarButtonItem = editButtonItem
+        
         contactStore.requestAccess(for: .contacts) { (success, error) in
             if success {
                 print("Authorization Successfull")
             }
         }
-        
         fetchContacts()
     }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+            super.setEditing(editing, animated: animated)
+            tableView.isEditing = editing
+
+            print(editing)
+        }
+    
+    
         
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return contacts.count
@@ -49,6 +62,22 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 //        cell.textLabel?.text = contactToDisplay.givenName + " " + contactToDisplay.familyName
 //        cell.detailTextLabel?.text = contactToDisplay.number
         return cell        
+    }
+    
+    // 選択時のデリゲートメソッド
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // 選択した行番号が出力される
+        print(indexPath.row)
+        
+//        let saveRequest = CNSaveRequest()
+//        saveRequest.delete(.mutableCopy() as! CNMutableContact)
+                               // arrayOfContactsRequests.append(saveRequest)
+    }
+   
+    // 選択解除時のデリゲートメソッド
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        // 選択した解除した行番号が出力される
+        print(indexPath.row)
     }
     
         
@@ -71,12 +100,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: number!)
                     self.contacts.append(contactToAppend)
                 }
-                 
-        
             }
             tableView.reloadData()
         }
 
+    
 
 }
 
