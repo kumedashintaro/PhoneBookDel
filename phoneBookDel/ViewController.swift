@@ -10,7 +10,7 @@ import Contacts
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    
+
     @IBOutlet var tableView: UITableView!
     
     var contactStore = CNContactStore()
@@ -30,42 +30,53 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         fetchContacts()
     }
-    
+        
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return contacts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        //let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "phoneBookCell", for: indexPath as IndexPath)
         let contactToDisplay = contacts[indexPath.row]
-        cell.textLabel?.text = contactToDisplay.givenName + " " + contactToDisplay.familyName
-        cell.detailTextLabel?.text = contactToDisplay.number
+        
+        let labelName = cell.viewWithTag(1) as! UILabel
+        labelName.text = contactToDisplay.givenName + " " + contactToDisplay.familyName
+        
+        let labelPhoneNumber = cell.viewWithTag(2) as! UILabel
+        labelPhoneNumber.text = contactToDisplay.number
+        
+//        cell.textLabel?.text = contactToDisplay.givenName + " " + contactToDisplay.familyName
+//        cell.detailTextLabel?.text = contactToDisplay.number
         return cell        
     }
     
-    
-    func fetchContacts() {
         
-        let key = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey] as [CNKeyDescriptor]
-        let request = CNContactFetchRequest(keysToFetch: key)
-        try! contactStore.enumerateContacts(with: request) { (contact, stoppingPointer) in
+        func fetchContacts() {
             
-            let name = contact.givenName
-            let familyName = contact.familyName
-            let number = contact.phoneNumbers.first?.value.stringValue
-            
-            if (number == nil){
-                let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: "番号未登録")
-                self.contacts.append(contactToAppend)
+            let key = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey] as [CNKeyDescriptor]
+            let request = CNContactFetchRequest(keysToFetch: key)
+            try! contactStore.enumerateContacts(with: request) { (contact, stoppingPointer) in
                 
-            } else {
+                let name = contact.givenName
+                let familyName = contact.familyName
+                let number = contact.phoneNumbers.first?.value.stringValue
                 
+                if (number == nil){
+                    let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: "番号未登録")
+                    self.contacts.append(contactToAppend)
+                    
+                } else {
+                    
                 let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: number!)
-                self.contacts.append(contactToAppend)
+                    self.contacts.append(contactToAppend)
+                }
+                 
+        
             }
+            tableView.reloadData()
         }
-        tableView.reloadData()
-    }
-    
+
+
 }
 
