@@ -68,10 +68,34 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // 選択した行番号が出力される
         print(indexPath.row)
+        print(contacts[indexPath.row].contact)
         
-//        let saveRequest = CNSaveRequest()
-//        saveRequest.delete(.mutableCopy() as! CNMutableContact)
-                               // arrayOfContactsRequests.append(saveRequest)
+        
+       
+        // 連絡先削除
+        var arrayOfContactsRequests : [CNSaveRequest] = []
+        let saveRequest = CNSaveRequest()
+        let mutableContact = contacts[indexPath.row].contact.mutableCopy() as! CNMutableContact
+        saveRequest.delete(mutableContact)
+        arrayOfContactsRequests.append(saveRequest)
+        
+        do{
+            try self.contactStore.execute(saveRequest)
+        }
+        catch let err {
+            print("error:", err)
+        }
+        
+//                do{
+//                  try store.executeSaveRequest(req)
+//                  print("Successfully deleted the user")
+//
+//                } catch let e{
+//                  print("Error = \(e)")
+//                }
+        
+        
+        
     }
    
     // 選択解除時のデリゲートメソッド
@@ -90,21 +114,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 let name = contact.givenName
                 let familyName = contact.familyName
                 let number = contact.phoneNumbers.first?.value.stringValue
-                
+                print("contact",contact)
                 if (number == nil){
-                    let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: "番号未登録")
+                    let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: "番号未登録",contact: contact)
                     self.contacts.append(contactToAppend)
                     
                 } else {
                     
-                let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: number!)
+                let contactToAppend = ContactStruct(givenName: name, familyName: familyName, number: number! ,contact: contact)
                     self.contacts.append(contactToAppend)
                 }
             }
             tableView.reloadData()
         }
-
-    
-
 }
 
